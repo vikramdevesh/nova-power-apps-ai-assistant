@@ -1,0 +1,398 @@
+- lblTitle:
+    Control: Label
+    Properties:
+      Text: ="✦  Nova Weather"
+      X: =32
+      Y: =40
+      Width: =330
+      Height: =44
+      Size: =18
+      FontWeight: =FontWeight.Semibold
+      Color: =RGBA(226, 232, 240, 1)
+- lblPin:
+    Control: Label
+    Properties:
+      Text: ="📍"
+      X: =txtCity.X - 34
+      Y: =txtCity.Y
+      Width: =30
+      Height: =44
+      Size: =14
+      Align: =Align.Center
+- txtCity:
+    Control: Classic/TextInput
+    Properties:
+      Default: ="London"
+      HintText: ="City"
+      X: =Parent.Width - 232
+      Y: =40
+      Width: =200
+      Height: =44
+      Size: =13
+      PaddingLeft: =16
+      Fill: =RGBA(255, 255, 255, 0.06)
+      HoverFill: =RGBA(255, 255, 255, 0.09)
+      BorderColor: =RGBA(255, 255, 255, 0.15)
+      HoverBorderColor: =RGBA(255, 255, 255, 0.3)
+      FocusedBorderColor: =RGBA(56, 189, 248, 1)
+      Color: =RGBA(241, 245, 249, 1)
+      RadiusTopLeft: =22
+      RadiusTopRight: =22
+      RadiusBottomLeft: =22
+      RadiusBottomRight: =22
+      OnChange: |-
+        =Set(varQuestion, "__greet");
+        Select(btnRun)
+- imgOrb:
+    Control: Image
+    Properties:
+      X: =(Parent.Width - Self.Width) / 2
+      Y: =120
+      Width: =440
+      Height: =440
+      ImagePosition: =ImagePosition.Fit
+      Image: |-
+        =With(
+            {base: Switch(
+                varMood,
+                "sun",   {Light: "#fff7cc", Mid: "#fbbf24", Deep: "#ea580c"},
+                "rain",  {Light: "#dbeafe", Mid: "#3b82f6", Deep: "#1e3a8a"},
+                "cloud", {Light: "#f8fafc", Mid: "#94a3b8", Deep: "#475569"},
+                "snow",  {Light: "#ffffff", Mid: "#bae6fd", Deep: "#64748b"},
+                {Light: "#e0f2fe", Mid: "#38bdf8", Deep: "#4338ca"}
+            )},
+            With(
+                Switch(
+                    varOrbState,
+                    "listening", {Light: "#ccfbf1", Mid: "#2dd4bf", Deep: "#0e7490", Breathe: "1.4s", Scale: "1.08", Spin: "6s", Ring: "0"},
+                    "thinking",  {Light: "#f5d0fe", Mid: "#a855f7", Deep: "#4c1d95", Breathe: "2.4s", Scale: "1.03", Spin: "1.6s", Ring: "0.9"},
+                    "speaking",  {Light: base.Light, Mid: base.Mid, Deep: base.Deep, Breathe: "0.55s", Scale: "1.1", Spin: "4s", Ring: "0"},
+                    /* idle */   {Light: base.Light, Mid: base.Mid, Deep: base.Deep, Breathe: "4s", Scale: "1.04", Spin: "14s", Ring: "0"}
+                ),
+                "data:image/svg+xml;utf8," & EncodeUrl(
+                    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'>" &
+                    "<defs>" &
+                        "<radialGradient id='g' cx='38%' cy='32%' r='75%'>" &
+                            "<stop offset='0%' stop-color='" & Light & "'/>" &
+                            "<stop offset='45%' stop-color='" & Mid & "'/>" &
+                            "<stop offset='100%' stop-color='" & Deep & "'/>" &
+                        "</radialGradient>" &
+                        "<filter id='glow' x='-50%' y='-50%' width='200%' height='200%'><feGaussianBlur stdDeviation='18'/></filter>" &
+                        "<filter id='soft' x='-50%' y='-50%' width='200%' height='200%'><feGaussianBlur stdDeviation='10'/></filter>" &
+                        "<clipPath id='clip'><circle cx='200' cy='200' r='110'/></clipPath>" &
+                    "</defs>" &
+                    "<style>" &
+                        ".breathe{transform-origin:200px 200px;animation:breathe " & Breathe & " ease-in-out infinite}" &
+                        ".spin{transform-origin:200px 200px;animation:spin " & Spin & " linear infinite}" &
+                        ".spin2{transform-origin:200px 200px;animation:spin " & Spin & " linear infinite reverse}" &
+                        "@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(" & Scale & ")}}" &
+                        "@keyframes spin{to{transform:rotate(360deg)}}" &
+                    "</style>" &
+                    "<circle class='spin' cx='200' cy='200' r='160' fill='none' stroke='" & Light & "' stroke-width='3' stroke-linecap='round' stroke-dasharray='4 18' opacity='" & Ring & "'/>" &
+                    "<g class='breathe'>" &
+                        "<circle cx='200' cy='200' r='120' fill='" & Mid & "' opacity='0.55' filter='url(#glow)'/>" &
+                        "<circle cx='200' cy='200' r='110' fill='url(#g)'/>" &
+                        "<g clip-path='url(#clip)'>" &
+                            "<g class='spin' filter='url(#soft)'><ellipse cx='160' cy='155' rx='85' ry='50' fill='" & Light & "' opacity='0.75'/></g>" &
+                            "<g class='spin2' filter='url(#soft)'><ellipse cx='245' cy='250' rx='80' ry='48' fill='" & Deep & "' opacity='0.65'/></g>" &
+                        "</g>" &
+                        "<ellipse cx='168' cy='145' rx='34' ry='20' fill='white' opacity='0.35' filter='url(#soft)'/>" &
+                    "</g>" &
+                    "</svg>"
+                )
+            )
+        )
+- lblStatus:
+    Control: Label
+    Properties:
+      X: =(Parent.Width - Self.Width) / 2
+      Y: =imgOrb.Y + imgOrb.Height
+      Width: =576
+      Height: =32
+      Align: =Align.Center
+      Color: =RGBA(148, 163, 184, 1)
+      Size: =13
+      Text: |-
+        =Switch(
+            varOrbState,
+            "listening", "● Listening…",
+            "thinking", "Checking the weather…",
+            "speaking", "Nova",
+            If(
+                IsBlank(varPlace),
+                "Ask me anything about the weather",
+                "📍 " & varPlace & "  ·  " & Round(varNow.weather.current.temp, 0) & "°C  ·  " & varNow.weather.current.cap
+            )
+        )
+- lblAnswer:
+    Control: Label
+    Properties:
+      X: =(Parent.Width - Self.Width) / 2
+      Y: =lblStatus.Y + lblStatus.Height + 8
+      Width: =576
+      Height: =210
+      Align: =Align.Center
+      VerticalAlign: =VerticalAlign.Top
+      Color: =RGBA(241, 245, 249, 1)
+      Size: =19
+      Text: =Left(varAnswer, varShown) & If(varOrbState = "speaking", " ▍", "")
+- tmrBoot:
+    Control: Timer
+    Properties:
+      Visible: =false
+      X: =20
+      Y: =1100
+      Duration: =400
+      AutoStart: =true
+      Repeat: =false
+      OnTimerEnd: |-
+        =Set(varQuestion, "__greet");
+        Select(btnRun)
+- tmrType:
+    Control: Timer
+    Properties:
+      Visible: =false
+      X: =200
+      Y: =1100
+      Duration: =35
+      Start: =varOrbState = "speaking"
+      Repeat: =true
+      AutoStart: =false
+      OnTimerEnd: |-
+        =If(
+            varShown < Len(varAnswer),
+            Set(varShown, varShown + 2),
+            Set(varOrbState, "idle")
+        )
+- btnRun:
+    Control: Classic/Button
+    Properties:
+      Text: ="Run Nova"
+      Visible: =false
+      X: =400
+      Y: =1100
+      OnSelect: |-
+        =Set(varOrbState, "thinking");
+        Set(varQ, Lower(varQuestion));
+        Set(varCity, Coalesce(Trim(txtCity.Text), "London"));
+        IfError(
+            Concurrent(
+                Set(varNow, MSNWeather.CurrentWeather(varCity, "Metric").responses),
+                Set(varToday, MSNWeather.TodaysForecast(varCity, "Metric").responses),
+                Set(varTomorrow, MSNWeather.TomorrowsForecast(varCity, "Metric").responses)
+            );
+            Set(varPlace, First(Split(varNow.source.location, ",")).Value);
+            With(
+                {sky: Lower(varNow.weather.current.cap)},
+                Set(
+                    varMood,
+                    If(
+                        "rain" in sky Or "shower" in sky Or "drizzle" in sky Or "thunder" in sky Or "storm" in sky, "rain",
+                        "snow" in sky Or "sleet" in sky, "snow",
+                        "sun" in sky Or "clear" in sky, "sun",
+                        "cloud"
+                    )
+                )
+            );
+            With(
+                {
+                    cur: varNow.weather.current,
+                    tod: varToday.daily,
+                    tom: varTomorrow.daily,
+                    rainPct: Max(varToday.daily.day.precip, varToday.daily.night.precip)
+                },
+                Set(
+                    varAnswer,
+                    If(
+                        varQ = "__greet",
+                        "Hi, I'm Nova. It's " & Round(cur.temp, 0) & "°C and " & Lower(cur.cap) & " in " & varPlace & " right now. Ask me anything about the weather.",
+                        "tomorrow" in varQ,
+                        "Tomorrow in " & varPlace & ": " & Lower(tom.day.cap) & ", with a high of " & Round(tom.tempHi, 0) & "°C and a low of " & Round(tom.tempLo, 0) & "°C. Chance of rain: " & Max(tom.day.precip, tom.night.precip) & "%.",
+                        "rain" in varQ Or "umbrella" in varQ,
+                        If(
+                            rainPct >= 50, "Yes, take an umbrella. There's a " & rainPct & "% chance of rain in " & varPlace & " today.",
+                            rainPct >= 20, "Maybe. There's a " & rainPct & "% chance of rain today, so a small umbrella wouldn't hurt.",
+                            "No umbrella needed. There's only a " & rainPct & "% chance of rain in " & varPlace & " today."
+                        ),
+                        "wear" in varQ Or "jacket" in varQ Or "cold" in varQ Or "dress" in varQ,
+                        If(
+                            cur.feels < 5, "Bundle up: a warm coat, scarf and gloves.",
+                            cur.feels < 12, "A warm jacket. It's chilly out there.",
+                            cur.feels < 18, "A light jacket or a hoodie should be perfect.",
+                            cur.feels < 25, "A T-shirt, maybe with a light layer for later.",
+                            "Shorts, sunglasses and sunscreen. It's warm!"
+                        ) & " It feels like " & Round(cur.feels, 0) & "°C" & If(rainPct >= 50, ", and rain is likely, so take an umbrella.", "."),
+                        "uv" in varQ Or "sunscreen" in varQ,
+                        "The UV index in " & varPlace & " is " & cur.uv & " (" & cur.uvDesc & ")" & If(cur.uv >= 3, ", so sunscreen is a good idea.", ". No sunscreen needed."),
+                        "today" in varQ Or "forecast" in varQ,
+                        tod.day.summary & " " & tod.night.summary,
+                        "It's " & Round(cur.temp, 0) & "°C and " & Lower(cur.cap) & " in " & varPlace & ". It feels like " & Round(cur.feels, 0) & "°C, with wind at " & Round(cur.windSpd, 0) & " km/h and " & cur.rh & "% humidity."
+                    )
+                )
+            ),
+            Set(varAnswer, "Sorry, I couldn't get the weather for """ & varCity & """. Check the city name and try again.")
+        );
+        Set(varShown, 0);
+        Set(varOrbState, "speaking")
+- btnChip1:
+    Control: Classic/Button
+    Properties:
+      Text: ="Weather now"
+      X: =(Parent.Width - 564) / 2
+      Y: =830
+      Width: =276
+      Height: =56
+      Size: =13
+      Fill: =RGBA(255, 255, 255, 0.06)
+      HoverFill: =RGBA(255, 255, 255, 0.12)
+      PressedFill: =RGBA(255, 255, 255, 0.18)
+      BorderColor: =RGBA(255, 255, 255, 0.15)
+      HoverBorderColor: =RGBA(255, 255, 255, 0.3)
+      BorderThickness: =1
+      Color: =RGBA(226, 232, 240, 1)
+      HoverColor: =RGBA(255, 255, 255, 1)
+      RadiusTopLeft: =28
+      RadiusTopRight: =28
+      RadiusBottomLeft: =28
+      RadiusBottomRight: =28
+      OnSelect: |-
+        =Set(varQuestion, Self.Text);
+        Select(btnRun)
+- btnChip2:
+    Control: Classic/Button
+    Properties:
+      Text: ="Will it rain today?"
+      X: =btnChip1.X + 288
+      Y: =830
+      Width: =276
+      Height: =56
+      Size: =13
+      Fill: =RGBA(255, 255, 255, 0.06)
+      HoverFill: =RGBA(255, 255, 255, 0.12)
+      PressedFill: =RGBA(255, 255, 255, 0.18)
+      BorderColor: =RGBA(255, 255, 255, 0.15)
+      HoverBorderColor: =RGBA(255, 255, 255, 0.3)
+      BorderThickness: =1
+      Color: =RGBA(226, 232, 240, 1)
+      HoverColor: =RGBA(255, 255, 255, 1)
+      RadiusTopLeft: =28
+      RadiusTopRight: =28
+      RadiusBottomLeft: =28
+      RadiusBottomRight: =28
+      OnSelect: |-
+        =Set(varQuestion, Self.Text);
+        Select(btnRun)
+- btnChip3:
+    Control: Classic/Button
+    Properties:
+      Text: ="Tomorrow's forecast"
+      X: =(Parent.Width - 564) / 2
+      Y: =898
+      Width: =276
+      Height: =56
+      Size: =13
+      Fill: =RGBA(255, 255, 255, 0.06)
+      HoverFill: =RGBA(255, 255, 255, 0.12)
+      PressedFill: =RGBA(255, 255, 255, 0.18)
+      BorderColor: =RGBA(255, 255, 255, 0.15)
+      HoverBorderColor: =RGBA(255, 255, 255, 0.3)
+      BorderThickness: =1
+      Color: =RGBA(226, 232, 240, 1)
+      HoverColor: =RGBA(255, 255, 255, 1)
+      RadiusTopLeft: =28
+      RadiusTopRight: =28
+      RadiusBottomLeft: =28
+      RadiusBottomRight: =28
+      OnSelect: |-
+        =Set(varQuestion, Self.Text);
+        Select(btnRun)
+- btnChip4:
+    Control: Classic/Button
+    Properties:
+      Text: ="What should I wear?"
+      X: =btnChip1.X + 288
+      Y: =898
+      Width: =276
+      Height: =56
+      Size: =13
+      Fill: =RGBA(255, 255, 255, 0.06)
+      HoverFill: =RGBA(255, 255, 255, 0.12)
+      PressedFill: =RGBA(255, 255, 255, 0.18)
+      BorderColor: =RGBA(255, 255, 255, 0.15)
+      HoverBorderColor: =RGBA(255, 255, 255, 0.3)
+      BorderThickness: =1
+      Color: =RGBA(226, 232, 240, 1)
+      HoverColor: =RGBA(255, 255, 255, 1)
+      RadiusTopLeft: =28
+      RadiusTopRight: =28
+      RadiusBottomLeft: =28
+      RadiusBottomRight: =28
+      OnSelect: |-
+        =Set(varQuestion, Self.Text);
+        Select(btnRun)
+- txtAsk:
+    Control: Classic/TextInput
+    Properties:
+      Default: =""
+      HintText: ="Ask Nova about the weather…"
+      X: =32
+      Y: =1000
+      Width: =424
+      Height: =64
+      Size: =15
+      PaddingLeft: =22
+      Fill: =RGBA(255, 255, 255, 0.06)
+      HoverFill: =RGBA(255, 255, 255, 0.09)
+      BorderColor: =RGBA(255, 255, 255, 0.15)
+      HoverBorderColor: =RGBA(255, 255, 255, 0.3)
+      FocusedBorderColor: =RGBA(56, 189, 248, 1)
+      Color: =RGBA(241, 245, 249, 1)
+      RadiusTopLeft: =32
+      RadiusTopRight: =32
+      RadiusBottomLeft: =32
+      RadiusBottomRight: =32
+- btnMic:
+    Control: Classic/Button
+    Properties:
+      Text: =If(varOrbState = "listening", "■", "🎙")
+      X: =txtAsk.X + txtAsk.Width + 12
+      Y: =txtAsk.Y
+      Width: =64
+      Height: =64
+      Size: =18
+      Fill: =If(varOrbState = "listening", RGBA(45, 212, 191, 1), RGBA(255, 255, 255, 0.08))
+      HoverFill: =If(varOrbState = "listening", RGBA(45, 212, 191, 0.85), RGBA(255, 255, 255, 0.14))
+      BorderColor: =RGBA(255, 255, 255, 0.15)
+      BorderThickness: =1
+      Color: =RGBA(241, 245, 249, 1)
+      RadiusTopLeft: =32
+      RadiusTopRight: =32
+      RadiusBottomLeft: =32
+      RadiusBottomRight: =32
+      OnSelect: =Set(varOrbState, If(varOrbState = "listening", "idle", "listening"))
+- btnAsk:
+    Control: Classic/Button
+    Properties:
+      Text: ="➤"
+      X: =btnMic.X + btnMic.Width + 12
+      Y: =txtAsk.Y
+      Width: =64
+      Height: =64
+      Size: =20
+      Fill: =RGBA(56, 189, 248, 1)
+      HoverFill: =RGBA(125, 211, 252, 1)
+      PressedFill: =RGBA(14, 165, 233, 1)
+      DisabledFill: =RGBA(56, 189, 248, 0.3)
+      DisabledColor: =RGBA(5, 6, 15, 0.6)
+      BorderThickness: =0
+      Color: =RGBA(5, 6, 15, 1)
+      HoverColor: =RGBA(5, 6, 15, 1)
+      RadiusTopLeft: =32
+      RadiusTopRight: =32
+      RadiusBottomLeft: =32
+      RadiusBottomRight: =32
+      DisplayMode: =If(IsBlank(txtAsk.Text) Or varOrbState = "thinking", DisplayMode.Disabled, DisplayMode.Edit)
+      OnSelect: |-
+        =Set(varQuestion, txtAsk.Text);
+        Select(btnRun);
+        Reset(txtAsk)

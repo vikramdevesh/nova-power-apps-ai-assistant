@@ -1,0 +1,487 @@
+- lblTitle:
+    Control: Label
+    Properties:
+      Text: ="✦  Nova Sales"
+      X: =32
+      Y: =40
+      Width: =330
+      Height: =44
+      Size: =18
+      FontWeight: =FontWeight.Semibold
+      Color: =RGBA(226, 232, 240, 1)
+- lblLive:
+    Control: Label
+    Properties:
+      Text: ="● LIVE  ·  " & If(IsBlank(varUpdated), "connecting…", Text(varUpdated, "h:mm:ss AM/PM"))
+      X: =Parent.Width - 282
+      Y: =46
+      Width: =250
+      Height: =32
+      Size: =12
+      Align: =Align.Right
+      Color: =RGBA(74, 222, 128, 1)
+- imgKpis:
+    Control: Image
+    Properties:
+      X: =32
+      Y: =96
+      Width: =576
+      Height: =132
+      ImagePosition: =ImagePosition.Fit
+      Image: |-
+        =With(
+            {
+                e: 1 - Power(1 - Min(Coalesce(varAnim, 0), 1), 3),
+                pct: If(varWonPrevQ > 0, Round((varWonQ - varWonPrevQ) / varWonPrevQ * 100, 0), 0)
+            },
+            "data:image/svg+xml;utf8," & EncodeUrl(
+                "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 576 132'>" &
+                "<defs><linearGradient id='t' x1='0' x2='1'><stop offset='0' stop-color='#c7d2fe'/><stop offset='1' stop-color='#67e8f9'/></linearGradient></defs>" &
+                "<style>text{font-family:'Segoe UI',Arial,sans-serif}</style>" &
+                "<rect x='0.5' y='0.5' width='183' height='131' rx='18' fill='rgba(255,255,255,0.05)' stroke='rgba(255,255,255,0.14)'/>" &
+                "<text x='16' y='32' font-size='12' letter-spacing='1.2' fill='#94a3b8'>WON THIS QUARTER</text>" &
+                "<text x='16' y='80' font-size='34' font-weight='700' fill='url(#t)'>" & "$" & If((varWonQ * e) >= 1000000, Text((varWonQ * e) / 1000000, "0.00") & "M", Text((varWonQ * e) / 1000, "0") & "K") & "</text>" &
+                "<text x='16' y='110' font-size='13' fill='" & If(pct >= 0, "#4ade80", "#f87171") & "'>" & If(pct >= 0, "▲ ", "▼ ") & Abs(pct) & "% vs last quarter" & "</text>" &
+                "<rect x='196.5' y='0.5' width='183' height='131' rx='18' fill='rgba(255,255,255,0.05)' stroke='rgba(255,255,255,0.14)'/>" &
+                "<text x='212' y='32' font-size='12' letter-spacing='1.2' fill='#94a3b8'>OPEN PIPELINE</text>" &
+                "<text x='212' y='80' font-size='34' font-weight='700' fill='url(#t)'>" & "$" & If((varPipeline * e) >= 1000000, Text((varPipeline * e) / 1000000, "0.00") & "M", Text((varPipeline * e) / 1000, "0") & "K") & "</text>" &
+                "<text x='212' y='110' font-size='13' fill='" & "#94a3b8" & "'>" & CountRows(colOpen) & " open deals" & "</text>" &
+                "<rect x='392.5' y='0.5' width='183' height='131' rx='18' fill='rgba(255,255,255,0.05)' stroke='rgba(255,255,255,0.14)'/>" &
+                "<text x='408' y='32' font-size='12' letter-spacing='1.2' fill='#94a3b8'>WIN RATE</text>" &
+                "<text x='408' y='80' font-size='34' font-weight='700' fill='url(#t)'>" & Text(varWinRate * 100 * e, "0") & "%" & "</text>" &
+                "<text x='408' y='110' font-size='13' fill='" & "#94a3b8" & "'>" & varWonCount & " won · " & varLostCount & " lost" & "</text>" &
+                "</svg>"
+            )
+        )
+- imgChart:
+    Control: Image
+    Properties:
+      X: =32
+      Y: =244
+      Width: =576
+      Height: =250
+      ImagePosition: =ImagePosition.Fit
+      Image: |-
+        ="data:image/svg+xml;utf8," & EncodeUrl(
+            "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 576 250'>" &
+            "<defs>" &
+                "<linearGradient id='b' x1='0' x2='1'><stop offset='0' stop-color='#6366f1'/><stop offset='1' stop-color='#22d3ee'/></linearGradient>" &
+                "<linearGradient id='g' x1='0' x2='1'><stop offset='0' stop-color='#16a34a'/><stop offset='1' stop-color='#86efac'/></linearGradient>" &
+                "<filter id='gl' x='-20%' y='-100%' width='140%' height='300%'><feGaussianBlur stdDeviation='5'/></filter>" &
+            "</defs>" &
+            "<style>text{font-family:'Segoe UI',Arial,sans-serif}.bar{transform-box:fill-box;transform-origin:left center;animation:grow 1.2s cubic-bezier(.2,.8,.2,1) both}@keyframes grow{from{transform:scaleX(0)}}</style>" &
+            "<rect x='0.5' y='0.5' width='575' height='249' rx='18' fill='rgba(255,255,255,0.04)' stroke='rgba(255,255,255,0.12)'/>" &
+            "<text x='20' y='32' font-size='12' letter-spacing='1.2' fill='#94a3b8'>PIPELINE BY STAGE</text>" &
+            Concat(
+                colStageTotals,
+                With(
+                    {y: 48 + (Idx - 1) * 38, w: 8 + 300 * Total / Max(1, varMaxStage), f: If(StageName = "Closed Won", "url(#g)", "url(#b)")},
+                    "<text x='20' y='" & y + 19 & "' font-size='14' fill='#cbd5e1'>" & StageName & "</text>" &
+                    "<g class='bar' style='animation-delay:" & (Idx - 1) * 0.08 & "s'>" &
+                    "<rect x='150' y='" & y + 5 & "' width='" & w & "' height='20' rx='10' fill='" & f & "' filter='url(#gl)' opacity='0.55'/>" &
+                    "<rect x='150' y='" & y + 5 & "' width='" & w & "' height='20' rx='10' fill='" & f & "'/>" &
+                    "</g>" &
+                    "<text x='" & 160 + w & "' y='" & y + 20 & "' font-size='13' font-weight='600' fill='#ffffff'>$" & If((Total) >= 1000000, Text((Total) / 1000000, "0.00") & "M", Text((Total) / 1000, "0") & "K") & "</text>"
+                )
+            ) &
+            "</svg>"
+        )
+- imgOrb:
+    Control: Image
+    Properties:
+      X: =(Parent.Width - Self.Width) / 2
+      Y: =500
+      Width: =210
+      Height: =210
+      ImagePosition: =ImagePosition.Fit
+      Image: |-
+        =With(
+            {base: Switch(
+                varMood,
+                "win",  {Light: "#dcfce7", Mid: "#22c55e", Deep: "#14532d"},
+                "risk", {Light: "#ffedd5", Mid: "#f97316", Deep: "#9f1239"},
+                {Light: "#e0e7ff", Mid: "#818cf8", Deep: "#4338ca"}
+            )},
+            With(
+                Switch(
+                    varOrbState,
+                    "listening", {Light: "#ccfbf1", Mid: "#2dd4bf", Deep: "#0e7490", Breathe: "1.4s", Scale: "1.08", Spin: "6s", Ring: "0"},
+                    "thinking",  {Light: "#f5d0fe", Mid: "#a855f7", Deep: "#4c1d95", Breathe: "2.4s", Scale: "1.03", Spin: "1.6s", Ring: "0.9"},
+                    "speaking",  {Light: base.Light, Mid: base.Mid, Deep: base.Deep, Breathe: "0.55s", Scale: "1.1", Spin: "4s", Ring: "0"},
+                    /* idle */   {Light: base.Light, Mid: base.Mid, Deep: base.Deep, Breathe: "4s", Scale: "1.04", Spin: "14s", Ring: "0"}
+                ),
+                "data:image/svg+xml;utf8," & EncodeUrl(
+                    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'>" &
+                    "<defs>" &
+                        "<radialGradient id='g' cx='38%' cy='32%' r='75%'>" &
+                            "<stop offset='0%' stop-color='" & Light & "'/>" &
+                            "<stop offset='45%' stop-color='" & Mid & "'/>" &
+                            "<stop offset='100%' stop-color='" & Deep & "'/>" &
+                        "</radialGradient>" &
+                        "<filter id='glow' x='-50%' y='-50%' width='200%' height='200%'><feGaussianBlur stdDeviation='18'/></filter>" &
+                        "<filter id='soft' x='-50%' y='-50%' width='200%' height='200%'><feGaussianBlur stdDeviation='10'/></filter>" &
+                        "<clipPath id='clip'><circle cx='200' cy='200' r='110'/></clipPath>" &
+                    "</defs>" &
+                    "<style>" &
+                        ".breathe{transform-origin:200px 200px;animation:breathe " & Breathe & " ease-in-out infinite}" &
+                        ".spin{transform-origin:200px 200px;animation:spin " & Spin & " linear infinite}" &
+                        ".spin2{transform-origin:200px 200px;animation:spin " & Spin & " linear infinite reverse}" &
+                        "@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(" & Scale & ")}}" &
+                        "@keyframes spin{to{transform:rotate(360deg)}}" &
+                    "</style>" &
+                    "<circle class='spin' cx='200' cy='200' r='160' fill='none' stroke='" & Light & "' stroke-width='3' stroke-linecap='round' stroke-dasharray='4 18' opacity='" & Ring & "'/>" &
+                    "<g class='breathe'>" &
+                        "<circle cx='200' cy='200' r='120' fill='" & Mid & "' opacity='0.55' filter='url(#glow)'/>" &
+                        "<circle cx='200' cy='200' r='110' fill='url(#g)'/>" &
+                        "<g clip-path='url(#clip)'>" &
+                            "<g class='spin' filter='url(#soft)'><ellipse cx='160' cy='155' rx='85' ry='50' fill='" & Light & "' opacity='0.75'/></g>" &
+                            "<g class='spin2' filter='url(#soft)'><ellipse cx='245' cy='250' rx='80' ry='48' fill='" & Deep & "' opacity='0.65'/></g>" &
+                        "</g>" &
+                        "<ellipse cx='168' cy='145' rx='34' ry='20' fill='white' opacity='0.35' filter='url(#soft)'/>" &
+                    "</g>" &
+                    "</svg>"
+                )
+            )
+        )
+- lblStatus:
+    Control: Label
+    Properties:
+      X: =(Parent.Width - Self.Width) / 2
+      Y: =imgOrb.Y + imgOrb.Height
+      Width: =576
+      Height: =32
+      Align: =Align.Center
+      Color: =RGBA(148, 163, 184, 1)
+      Size: =13
+      Text: |-
+        =Switch(
+            varOrbState,
+            "listening", "● Listening…",
+            "thinking", "Crunching your pipeline…",
+            "speaking", "Nova",
+            If(IsBlank(varUpdated), "Connecting to SharePoint…", "Ask Nova about your pipeline")
+        )
+- lblAnswer:
+    Control: Label
+    Properties:
+      X: =(Parent.Width - Self.Width) / 2
+      Y: =lblStatus.Y + lblStatus.Height + 4
+      Width: =576
+      Height: =128
+      Align: =Align.Center
+      VerticalAlign: =VerticalAlign.Top
+      Color: =RGBA(241, 245, 249, 1)
+      Size: =16
+      Text: =Left(varAnswer, varShown) & If(varOrbState = "speaking", " ▍", "")
+- tmrBoot:
+    Control: Timer
+    Properties:
+      Visible: =false
+      X: =20
+      Y: =1100
+      Duration: =300
+      AutoStart: =true
+      Repeat: =false
+      OnTimerEnd: =Select(btnRefresh)
+- tmrRefresh:
+    Control: Timer
+    Properties:
+      Visible: =false
+      X: =20
+      Y: =1150
+      Duration: =8000
+      AutoStart: =true
+      Repeat: =true
+      OnTimerEnd: =Select(btnRefresh)
+- tmrAnim:
+    Control: Timer
+    Properties:
+      Visible: =false
+      X: =200
+      Y: =1150
+      Duration: =30
+      Repeat: =true
+      AutoStart: =true
+      OnTimerEnd: =If(Coalesce(varAnim, 1) < 1, Set(varAnim, Min(1, varAnim + 0.04)))
+- tmrThink:
+    Control: Timer
+    Properties:
+      Visible: =false
+      X: =380
+      Y: =1150
+      Duration: =1200
+      Start: =varOrbState = "thinking"
+      Repeat: =false
+      AutoStart: =false
+      OnTimerEnd: =Set(varOrbState, "speaking")
+- tmrType:
+    Control: Timer
+    Properties:
+      Visible: =false
+      X: =200
+      Y: =1100
+      Duration: =35
+      Start: =varOrbState = "speaking"
+      Repeat: =true
+      AutoStart: =false
+      OnTimerEnd: |-
+        =If(
+            varShown < Len(varAnswer),
+            Set(varShown, varShown + 2),
+            Set(varOrbState, "idle")
+        )
+- btnRefresh:
+    Control: Classic/Button
+    Properties:
+      Text: ="Refresh"
+      Visible: =false
+      X: =560
+      Y: =1100
+      OnSelect: |-
+        =Refresh('Nova Deals');
+        ClearCollect(colPrevWon, Filter(colDeals, Stage.Value = "Closed Won"));
+        ClearCollect(colDeals, 'Nova Deals');
+        Set(varUpdated, Now());
+        Set(varQStart, Date(Year(Today()), RoundDown((Month(Today()) - 1) / 3, 0) * 3 + 1, 1));
+        Set(varPrevQStart, DateAdd(varQStart, -3, TimeUnit.Months));
+        ClearCollect(colOpen, Filter(colDeals, Not(Stage.Value in ["Closed Won", "Closed Lost"])));
+        Set(varWonCount, CountRows(Filter(colDeals, Stage.Value = "Closed Won")));
+        Set(varLostCount, CountRows(Filter(colDeals, Stage.Value = "Closed Lost")));
+        Set(varNewWonQ, Sum(Filter(colDeals, Stage.Value = "Closed Won" And CloseDate >= varQStart), Amount));
+        Set(varWonPrevQ, Sum(Filter(colDeals, Stage.Value = "Closed Won" And CloseDate >= varPrevQStart And CloseDate < varQStart), Amount));
+        Set(varPipeline, Sum(colOpen, Amount));
+        Set(varWinRate, varWonCount / Max(1, varWonCount + varLostCount));
+        ClearCollect(
+            colStageTotals,
+            ForAll(
+                Sequence(5) As i,
+                With(
+                    {nm: Index(["Prospecting", "Qualification", "Proposal", "Negotiation", "Closed Won"], i.Value).Value},
+                    {Idx: i.Value, StageName: nm, Total: Sum(Filter(colDeals, Stage.Value = nm), Amount)}
+                )
+            )
+        );
+        Set(varMaxStage, Max(colStageTotals, Total));
+        If(varNewWonQ <> varWonQ, Set(varAnim, 0));
+        If(
+            varLoaded And varWonCount > CountRows(colPrevWon),
+            With(
+                {d: First(Filter(colDeals, Stage.Value = "Closed Won" And Not(ID in colPrevWon.ID)))},
+                Set(varMood, "win");
+                Set(varAnswer, "🎉 New deal won! " & d.Title & " just closed for $" & If((d.Amount) >= 1000000, Text((d.Amount) / 1000000, "0.00") & "M", Text((d.Amount) / 1000, "0") & "K") & ". You're now at $" & If((varNewWonQ) >= 1000000, Text((varNewWonQ) / 1000000, "0.00") & "M", Text((varNewWonQ) / 1000, "0") & "K") & " this quarter.");
+                Set(varShown, 0);
+                Set(varOrbState, "speaking")
+            )
+        );
+        If(
+            Not(varLoaded),
+            Set(varQuestion, "__greet");
+            Select(btnRun)
+        );
+        Set(varWonQ, varNewWonQ);
+        Set(varLoaded, true)
+- btnRun:
+    Control: Classic/Button
+    Properties:
+      Text: ="Run Nova"
+      Visible: =false
+      X: =400
+      Y: =1100
+      OnSelect: |-
+        =Set(varOrbState, "thinking");
+        Set(varQ, Lower(varQuestion));
+        Set(varMood, If("risk" in varQ Or "stuck" in varQ, "risk", "revenue" in varQ Or "won" in varQ Or "sales" in varQ, "win", ""));
+        With(
+            {
+                top: First(Sort(colOpen, Amount, SortOrder.Descending)),
+                risky: Sort(Filter(colOpen, DateDiff(LastActivity, Today()) > 14), Amount, SortOrder.Descending),
+                soon: Sum(Filter(colOpen, CloseDate <= DateAdd(Today(), 30)), Amount * Probability / 100),
+                pct: If(varWonPrevQ > 0, Round((varWonQ - varWonPrevQ) / varWonPrevQ * 100, 0), 0),
+                best: First(Sort(AddColumns(GroupBy(Filter(colDeals, Stage.Value = "Closed Won" And CloseDate >= varQStart), Owner, Grp), Tot, Sum(Grp, Amount)), Tot, SortOrder.Descending))
+            },
+            Set(
+                varAnswer,
+                If(
+                    varQ = "__greet",
+                    "Hi, I'm Nova. I'm connected to your live SharePoint pipeline: $" & If((varWonQ) >= 1000000, Text((varWonQ) / 1000000, "0.00") & "M", Text((varWonQ) / 1000, "0") & "K") & " won this quarter and $" & If((varPipeline) >= 1000000, Text((varPipeline) / 1000000, "0.00") & "M", Text((varPipeline) / 1000, "0") & "K") & " still open. What do you want to know?",
+                    "top" in varQ Or "biggest" in varQ Or "largest" in varQ,
+                    "Your biggest open deal is " & top.Title & " at $" & If((top.Amount) >= 1000000, Text((top.Amount) / 1000000, "0.00") & "M", Text((top.Amount) / 1000, "0") & "K") & ". It's in " & top.Stage.Value & " with a " & top.Probability & "% win chance, owned by " & top.Owner & ", and should close on " & Text(top.CloseDate, "mmm d") & ".",
+                    "risk" in varQ Or "stuck" in varQ,
+                    If(
+                        CountRows(risky) = 0,
+                        "Good news: every open deal has had activity in the last two weeks.",
+                        CountRows(risky) & " deals worth $" & If((Sum(risky, Amount)) >= 1000000, Text((Sum(risky, Amount)) / 1000000, "0.00") & "M", Text((Sum(risky, Amount)) / 1000, "0") & "K") & " have gone quiet for 14+ days. Start with " & First(risky).Title & ": $" & If((First(risky).Amount) >= 1000000, Text((First(risky).Amount) / 1000000, "0.00") & "M", Text((First(risky).Amount) / 1000, "0") & "K") & ", last touched " & DateDiff(First(risky).LastActivity, Today()) & " days ago."
+                    ),
+                    "forecast" in varQ Or "next month" in varQ Or "predict" in varQ,
+                    "Over the next 30 days I expect about $" & If((soon) >= 1000000, Text((soon) / 1000000, "0.00") & "M", Text((soon) / 1000, "0") & "K") & " to close, weighted by win probability. That would put the quarter at roughly $" & If((varWonQ + soon) >= 1000000, Text((varWonQ + soon) / 1000000, "0.00") & "M", Text((varWonQ + soon) / 1000, "0") & "K") & ".",
+                    "win rate" in varQ,
+                    "Your win rate is " & Text(varWinRate * 100, "0") & "%: " & varWonCount & " deals won and " & varLostCount & " lost.",
+                    "revenue" in varQ Or "won" in varQ Or "sales" in varQ Or "quarter" in varQ,
+                    "You've won $" & If((varWonQ) >= 1000000, Text((varWonQ) / 1000000, "0.00") & "M", Text((varWonQ) / 1000, "0") & "K") & " this quarter, " & If(pct >= 0, "up ", "down ") & Abs(pct) & "% on last quarter. Top seller: " & best.Owner & " with $" & If((best.Tot) >= 1000000, Text((best.Tot) / 1000000, "0.00") & "M", Text((best.Tot) / 1000, "0") & "K") & ".",
+                    "Right now: $" & If((varWonQ) >= 1000000, Text((varWonQ) / 1000000, "0.00") & "M", Text((varWonQ) / 1000, "0") & "K") & " won this quarter, $" & If((varPipeline) >= 1000000, Text((varPipeline) / 1000000, "0.00") & "M", Text((varPipeline) / 1000, "0") & "K") & " in open pipeline and a " & Text(varWinRate * 100, "0") & "% win rate. Ask me about your top deal, risks or the forecast."
+                )
+            )
+        );
+        Set(varShown, 0)
+- btnChip1:
+    Control: Classic/Button
+    Properties:
+      Text: ="Revenue this quarter"
+      X: =(Parent.Width - 564) / 2
+      Y: =884
+      Width: =276
+      Height: =56
+      Size: =13
+      Fill: =RGBA(255, 255, 255, 0.06)
+      HoverFill: =RGBA(255, 255, 255, 0.12)
+      PressedFill: =RGBA(255, 255, 255, 0.18)
+      BorderColor: =RGBA(255, 255, 255, 0.15)
+      HoverBorderColor: =RGBA(255, 255, 255, 0.3)
+      BorderThickness: =1
+      Color: =RGBA(226, 232, 240, 1)
+      HoverColor: =RGBA(255, 255, 255, 1)
+      RadiusTopLeft: =28
+      RadiusTopRight: =28
+      RadiusBottomLeft: =28
+      RadiusBottomRight: =28
+      OnSelect: |-
+        =Set(varQuestion, Self.Text);
+        Select(btnRun)
+- btnChip2:
+    Control: Classic/Button
+    Properties:
+      Text: ="Top deal?"
+      X: =btnChip1.X + 288
+      Y: =884
+      Width: =276
+      Height: =56
+      Size: =13
+      Fill: =RGBA(255, 255, 255, 0.06)
+      HoverFill: =RGBA(255, 255, 255, 0.12)
+      PressedFill: =RGBA(255, 255, 255, 0.18)
+      BorderColor: =RGBA(255, 255, 255, 0.15)
+      HoverBorderColor: =RGBA(255, 255, 255, 0.3)
+      BorderThickness: =1
+      Color: =RGBA(226, 232, 240, 1)
+      HoverColor: =RGBA(255, 255, 255, 1)
+      RadiusTopLeft: =28
+      RadiusTopRight: =28
+      RadiusBottomLeft: =28
+      RadiusBottomRight: =28
+      OnSelect: |-
+        =Set(varQuestion, Self.Text);
+        Select(btnRun)
+- btnChip3:
+    Control: Classic/Button
+    Properties:
+      Text: ="Any risky deals?"
+      X: =(Parent.Width - 564) / 2
+      Y: =950
+      Width: =276
+      Height: =56
+      Size: =13
+      Fill: =RGBA(255, 255, 255, 0.06)
+      HoverFill: =RGBA(255, 255, 255, 0.12)
+      PressedFill: =RGBA(255, 255, 255, 0.18)
+      BorderColor: =RGBA(255, 255, 255, 0.15)
+      HoverBorderColor: =RGBA(255, 255, 255, 0.3)
+      BorderThickness: =1
+      Color: =RGBA(226, 232, 240, 1)
+      HoverColor: =RGBA(255, 255, 255, 1)
+      RadiusTopLeft: =28
+      RadiusTopRight: =28
+      RadiusBottomLeft: =28
+      RadiusBottomRight: =28
+      OnSelect: |-
+        =Set(varQuestion, Self.Text);
+        Select(btnRun)
+- btnChip4:
+    Control: Classic/Button
+    Properties:
+      Text: ="Forecast"
+      X: =btnChip1.X + 288
+      Y: =950
+      Width: =276
+      Height: =56
+      Size: =13
+      Fill: =RGBA(255, 255, 255, 0.06)
+      HoverFill: =RGBA(255, 255, 255, 0.12)
+      PressedFill: =RGBA(255, 255, 255, 0.18)
+      BorderColor: =RGBA(255, 255, 255, 0.15)
+      HoverBorderColor: =RGBA(255, 255, 255, 0.3)
+      BorderThickness: =1
+      Color: =RGBA(226, 232, 240, 1)
+      HoverColor: =RGBA(255, 255, 255, 1)
+      RadiusTopLeft: =28
+      RadiusTopRight: =28
+      RadiusBottomLeft: =28
+      RadiusBottomRight: =28
+      OnSelect: |-
+        =Set(varQuestion, Self.Text);
+        Select(btnRun)
+- txtAsk:
+    Control: Classic/TextInput
+    Properties:
+      Default: =""
+      HintText: ="Ask Nova about your pipeline…"
+      X: =32
+      Y: =1032
+      Width: =424
+      Height: =64
+      Size: =15
+      PaddingLeft: =22
+      Fill: =RGBA(255, 255, 255, 0.06)
+      HoverFill: =RGBA(255, 255, 255, 0.09)
+      BorderColor: =RGBA(255, 255, 255, 0.15)
+      HoverBorderColor: =RGBA(255, 255, 255, 0.3)
+      FocusedBorderColor: =RGBA(56, 189, 248, 1)
+      Color: =RGBA(241, 245, 249, 1)
+      RadiusTopLeft: =32
+      RadiusTopRight: =32
+      RadiusBottomLeft: =32
+      RadiusBottomRight: =32
+- btnMic:
+    Control: Classic/Button
+    Properties:
+      Text: =If(varOrbState = "listening", "■", "🎙")
+      X: =txtAsk.X + txtAsk.Width + 12
+      Y: =txtAsk.Y
+      Width: =64
+      Height: =64
+      Size: =18
+      Fill: =If(varOrbState = "listening", RGBA(45, 212, 191, 1), RGBA(255, 255, 255, 0.08))
+      HoverFill: =If(varOrbState = "listening", RGBA(45, 212, 191, 0.85), RGBA(255, 255, 255, 0.14))
+      BorderColor: =RGBA(255, 255, 255, 0.15)
+      BorderThickness: =1
+      Color: =RGBA(241, 245, 249, 1)
+      RadiusTopLeft: =32
+      RadiusTopRight: =32
+      RadiusBottomLeft: =32
+      RadiusBottomRight: =32
+      OnSelect: =Set(varOrbState, If(varOrbState = "listening", "idle", "listening"))
+- btnAsk:
+    Control: Classic/Button
+    Properties:
+      Text: ="➤"
+      X: =btnMic.X + btnMic.Width + 12
+      Y: =txtAsk.Y
+      Width: =64
+      Height: =64
+      Size: =20
+      Fill: =RGBA(56, 189, 248, 1)
+      HoverFill: =RGBA(125, 211, 252, 1)
+      PressedFill: =RGBA(14, 165, 233, 1)
+      DisabledFill: =RGBA(56, 189, 248, 0.3)
+      DisabledColor: =RGBA(5, 6, 15, 0.6)
+      BorderThickness: =0
+      Color: =RGBA(5, 6, 15, 1)
+      HoverColor: =RGBA(5, 6, 15, 1)
+      RadiusTopLeft: =32
+      RadiusTopRight: =32
+      RadiusBottomLeft: =32
+      RadiusBottomRight: =32
+      DisplayMode: =If(IsBlank(txtAsk.Text) Or varOrbState = "thinking", DisplayMode.Disabled, DisplayMode.Edit)
+      OnSelect: |-
+        =Set(varQuestion, txtAsk.Text);
+        Select(btnRun);
+        Reset(txtAsk)

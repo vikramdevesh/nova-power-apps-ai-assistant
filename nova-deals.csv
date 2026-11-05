@@ -1,0 +1,41 @@
+Title,Amount,Stage,Region,Owner,Probability,CloseDate,LastActivity
+Northwind Traders,210000,Closed Won,West,Aisha Khan,100,2026-10-08,2026-10-08
+Adventure Works,145000,Closed Won,East,Ben Carter,100,2026-10-15,2026-10-15
+Woodgrove Bank,320000,Closed Won,North,Chen Wei,100,2026-10-21,2026-10-21
+Tailspin Toys,68000,Closed Won,South,Diego Lopez,100,2026-10-24,2026-10-24
+Alpine Ski House,92000,Closed Won,West,Emma Novak,100,2026-10-28,2026-10-28
+Coho Winery,54000,Closed Won,East,Aisha Khan,100,2026-10-30,2026-10-30
+Litware Inc,175000,Closed Won,North,Ben Carter,100,2026-11-02,2026-11-02
+Fourth Coffee,38000,Closed Won,South,Chen Wei,100,2026-11-03,2026-11-03
+Lucerne Publishing,120000,Closed Won,East,Diego Lopez,100,2026-07-18,2026-07-18
+Trey Research,260000,Closed Won,West,Emma Novak,100,2026-08-12,2026-08-12
+Margie's Travel,75000,Closed Won,South,Aisha Khan,100,2026-09-05,2026-09-05
+Wingtip Toys,140000,Closed Won,North,Ben Carter,100,2026-09-24,2026-09-24
+Blue Yonder Airlines,230000,Closed Lost,West,Chen Wei,0,2026-10-12,2026-10-12
+City Power & Light,88000,Closed Lost,North,Diego Lopez,0,2026-09-15,2026-09-15
+Humongous Insurance,150000,Closed Lost,East,Emma Novak,0,2026-10-26,2026-10-26
+Southridge Video,42000,Closed Lost,South,Aisha Khan,0,2026-08-30,2026-08-30
+Contoso Retail,480000,Negotiation,West,Aisha Khan,70,2026-11-13,2026-11-02
+Fabrikam Inc,395000,Negotiation,East,Ben Carter,65,2026-11-20,2026-10-12
+Relecloud,160000,Negotiation,North,Chen Wei,75,2026-11-18,2026-11-03
+VanArsdel Ltd,120000,Negotiation,South,Diego Lopez,60,2026-11-27,2026-10-30
+Tailwind Traders,210000,Negotiation,West,Emma Novak,70,2026-12-04,2026-11-01
+Proseware Inc,98000,Negotiation,East,Aisha Khan,80,2026-11-11,2026-11-04
+Wide World Importers,275000,Proposal,North,Ben Carter,45,2026-12-10,2026-10-15
+A. Datum Corporation,130000,Proposal,West,Chen Wei,50,2026-12-02,2026-10-29
+Lamna Healthcare,185000,Proposal,South,Diego Lopez,40,2026-12-15,2026-11-02
+Consolidated Messenger,64000,Proposal,East,Emma Novak,55,2026-11-28,2026-10-31
+Bellows College,47000,Proposal,North,Aisha Khan,50,2026-12-08,2026-10-17
+Graphic Design Institute,52000,Proposal,West,Ben Carter,45,2026-12-18,2026-11-03
+Northwind Health,220000,Proposal,East,Chen Wei,40,2027-01-12,2026-10-27
+Best For You Organics,72000,Qualification,South,Diego Lopez,25,2027-01-20,2026-10-28
+Munson's Pickles,36000,Qualification,North,Emma Novak,20,2027-01-15,2026-11-01
+Woodgrove Finance,310000,Qualification,West,Aisha Khan,30,2027-02-05,2026-10-09
+Contoso Pharmaceuticals,260000,Qualification,East,Ben Carter,25,2027-01-28,2026-10-30
+School of Fine Art,28000,Qualification,South,Chen Wei,20,2026-12-20,2026-11-02
+Fabrikam Residences,115000,Qualification,North,Diego Lopez,30,2027-02-12,2026-10-25
+Trey Logistics,90000,Prospecting,West,Emma Novak,10,2027-02-20,2026-10-31
+Litware Retail,140000,Prospecting,East,Aisha Khan,10,2027-03-05,2026-11-03
+Adatum Energy,330000,Prospecting,North,Ben Carter,15,2027-03-12,2026-10-20
+Coho Vineyard Tours,45000,Prospecting,South,Chen Wei,10,2027-02-25,2026-11-02
+Alpine Outfitters,60000,Prospecting,West,Diego Lopez,10,2027-03-18,2026-10-29
